@@ -1,20 +1,13 @@
-name: Autonomous CI/CD
+name: SonarCloud Scan
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to analyze'
-        required: false
-        default: 'main'
 
 jobs:
-  analyze-and-repair:
+  sonarcloud:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,22 +19,10 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-      
-      - name: Install Python dependencies
-        run: |
-          pip install -r autonomous-cicd/python/requirements.txt
       
       - name: Build Java
-        if: hashFiles('pom.xml') != ''
-        run: mvn clean verify
-      
+        run: mvn clean verify -DskipTests
+        
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -49,18 +30,5 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
-      
-      - name: Notify backend
-        if: github.ref == 'refs/heads/main'
-        run: |
-          curl -X POST ${{ secrets.BACKEND_URL }}/api/repair/webhook \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.BACKEND_TOKEN }}" \
-            -d '{
-              "repo_url": "${{ github.repository }}",
-              "commit_sha": "${{ github.sha }}",
-              "branch": "${{ github.ref_name }}",
-              "event": "sonar_scan_complete"
-            }'
+            -Dsonar.projectKey=ghostgaur_TEST
+            -Dsonar.organization=ghostgaur

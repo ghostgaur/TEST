@@ -27,3 +27,4 @@ def insecure_save(data):
 # Intentional Sonar Issue: Too many parameters
 def complex_function(a, b, c, d, e, f, g, h, i, j):
     return a + b
+# Triggering fresh scan after settings update

@@ -14,15 +14,6 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      
-      - name: Build Java
-        run: mvn clean verify -DskipTests
-        
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
